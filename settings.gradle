@@ -1,0 +1,3 @@
+rootProject.name='SatelliteLayout-master'
+include ':app'
+include ':satellitlayout'
