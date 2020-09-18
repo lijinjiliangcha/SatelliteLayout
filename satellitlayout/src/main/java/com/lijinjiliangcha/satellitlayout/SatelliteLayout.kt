@@ -4,17 +4,15 @@ import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.LinearInterpolator
 import androidx.core.view.children
-import org.json.JSONObject
+import com.lijinjiliangcha.satellitlayout.contract.BaseOption
 
 class SatelliteLayout : ViewGroup {
 
     //view动画设定
-    private val optionMap: HashMap<View, Option?> by lazy { HashMap() }
+    private val optionMap: HashMap<View, BaseOption?> by lazy { HashMap() }
 
     //动画
     private val anim: ValueAnimator by lazy {
@@ -26,17 +24,8 @@ class SatelliteLayout : ViewGroup {
                 if (optionMap.size == 0)
                     return@addUpdateListener
                 val value = it.animatedValue as Float
-                optionMap.values.forEach {
-                    it?.let {
-                        if (it.speed != 0) {
-                            val dis = it.speed * value
-                            //处理顺时针逆时针
-                            if (it.revolutionDirection == Direction.CLOCKWISE)
-                                it.angle += dis
-                            else
-                                it.angle -= dis
-                        }
-                    }
+                optionMap.values.forEach { option ->
+                    option?.onAnimCallback(value)
                 }
                 requestLayout()
             }
@@ -69,8 +58,8 @@ class SatelliteLayout : ViewGroup {
             val option = optionMap[it]
             if (option != null) {
                 //计算卫星子View所在位置
-                val childL = (cos(option.angle) * option.r + cx - childWidth / 2).toInt()
-                val childT = (sin(option.angle) * option.r + cy - childHeight / 2).toInt()
+                val childL = option.getLeft(childWidth, cx)
+                val childT = option.getTop(childHeight, cy)
                 it.layout(childL, childT, childL + childWidth, childT + childHeight)
             } else {
                 //非卫星子View放在中间
@@ -87,12 +76,12 @@ class SatelliteLayout : ViewGroup {
     }
 
     //获取指定view的option
-    fun getOption(view: View): Option? {
+    fun getOption(view: View): BaseOption? {
         return optionMap[view]
     }
 
     //获取指定index的view的option
-    fun getOption(index: Int): Option? {
+    fun getOption(index: Int): BaseOption? {
         if (index > childCount)
             return null
         return getOption(getChildAt(index))
@@ -122,16 +111,6 @@ class SatelliteLayout : ViewGroup {
         anim.cancel()
     }
 
-    //sin函数
-    private fun sin(angle: Float): Float {
-        return Math.sin(Math.toRadians(angle.toDouble())).toFloat()
-    }
-
-    //cos函数
-    private fun cos(angle: Float): Float {
-        return Math.cos(Math.toRadians(angle.toDouble())).toFloat()
-    }
-
     override fun removeAllViews() {
         super.removeAllViews()
         optionMap.clear()
@@ -147,4 +126,5 @@ class SatelliteLayout : ViewGroup {
         super.removeViewAt(index)
         optionMap.remove(view)
     }
+
 }

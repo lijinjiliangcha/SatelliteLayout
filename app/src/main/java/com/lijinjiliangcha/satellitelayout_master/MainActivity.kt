@@ -4,12 +4,11 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.ImageView
 import android.widget.Toast
 import com.lijinjiliangcha.roundedimageview.RoundedImageView
 import com.lijinjiliangcha.satellitlayout.Direction
 import com.lijinjiliangcha.satellitlayout.Entry
-import com.lijinjiliangcha.satellitlayout.Option
+import com.lijinjiliangcha.satellitlayout.option.Option
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -33,18 +32,22 @@ class MainActivity : AppCompatActivity() {
 
         sl.addEntry(list)
 
+        //开始
         btn_start.setOnClickListener {
             sl.start()
         }
+        //停止
         btn_end.setOnClickListener {
             sl.stop()
         }
+        //测试半径增加
         btn_black.setOnClickListener {
             val option = sl.getOption(iv_black)
             option?.let {
-                it.r += 10
+                (it as Option).r += 10
             }
         }
+        //点击事件
         iv_blue.setOnClickListener {
             Toast.makeText(this, "小蓝", Toast.LENGTH_SHORT).show()
         }
